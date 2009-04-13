@@ -1,0 +1,17 @@
+<h1>{% block name %}{% endblock %}</h1>
+
+<form method="POST" action="">
+    {{ formset.management_form }}
+	<table>
+    {% for form in formset.forms %}
+    	<tr>
+        {% for field in form %}
+            <td>{{ field.label_tag }}</td>
+            <td>{{ field }}</td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+    </br>
+    <input type="submit" value="submit changes" />
+</form>

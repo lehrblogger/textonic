@@ -1,0 +1,9 @@
+{% if object_list %}
+    <ul>
+    {% for object in object_list %}
+        <li>{{ object.instruction_text }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No instructions are available.</p>
+{% endif %}
