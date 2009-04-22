@@ -1,9 +1,7 @@
-{% if object_list %}
-    <ul>
-    {% for object in object_list %}
-        <li>{{ object.instruction_text }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No instructions are available.</p>
-{% endif %}
+{% extends "mt_batches/base_list.html" %}
+
+{% block uppername %}<a href="/mt_batches/tags">Tags</a> | Instructions{% endblock %}
+
+{% block listitem %}{{ object.instruction_text }}{% endblock %}
+
+{% block lowername %}instructions{% endblock %}

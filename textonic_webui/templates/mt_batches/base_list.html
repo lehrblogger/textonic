@@ -1,0 +1,13 @@
+<h1>{% block uppername %}{% endblock %}</h1>
+
+{% if object_list %}
+    <ul>
+    {% for object in object_list %}
+        <li>{% block listitem %}{% endblock %}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No {% block lowername %}{% endblock %} are available.</p>
+{% endif %}
+
+<p><a href="http://localhost:8000/mt_batches/create_instruction/">Create an instruction</a> | <a href="http://localhost:8000/mt_batches/create_tag/">Create a tag</a></p>

@@ -1,33 +1,34 @@
-from textonic_webui.mt_batches.models import Instruction, Tag
+from textonic_webui.mt_batches.models import Instruction, Tag, InstructionForm, TagForm
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponseRedirect
-from django.core.urlresolvers import reverse 
 
 
-def create_instructions(request):
-    InstructionFormSet = modelformset_factory(Instruction)
+def create_instruction(request):
+    i = Instruction()
     if request.method == 'POST':
-        formset = InstructionFormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            formset.save()
-            # do something.
+        f = InstructionForm(request.POST, instance=i)
+        if f.is_valid():
+            f.save()
+            return HttpResponseRedirect("/mt_batches/instructions")
+        else:
+            request.user.message_set.create(message='Please check your data.')
     else:
-        formset = InstructionFormSet()
-    return render_to_response("mt_batches/instruction_detail.html", {
-        "formset": formset,
-    })
+        f = InstructionForm(instance=i)
+        
+    return render_to_response("mt_batches/instruction_detail.html", {"form": f})
 
-def create_tags(request):
-    TagFormSet = modelformset_factory(Tag)
+def create_tag(request):
+    t = Tag()
     if request.method == 'POST':
-        formset = TagFormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            formset.save()
-            # do something.
+        f = TagForm(request.POST, instance=t)
+        if f.is_valid():
+            f.save()
+            return HttpResponseRedirect("/mt_batches/tags")
+        else:
+            request.user.message_set.create(message='Please check your data.')
     else:
-        formset = TagFormSet()
-    return render_to_response("mt_batches/tag_detail.html", {
-        "formset": formset,
-    })
+        f = TagForm(instance=t)
+        
+    return render_to_response("mt_batches/tag_detail.html", {"form": f})

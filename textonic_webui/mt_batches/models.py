@@ -16,8 +16,8 @@ import datetime
 
 class Tag(models.Model):
     # automatic! id = models.AutoField(primary_key=True)
-    tag = models.TextField()
-    creation_time = models.DateTimeField(default=datetime.datetime.now) 
+    tag = models.CharField(max_length=140, blank=True)
+    time = models.DateTimeField(default=datetime.datetime.now) 
     
     def __unicode__(self):
         return self.tag
@@ -25,10 +25,28 @@ class Tag(models.Model):
     class Meta:
         db_table = u'tags'
 
+class Instruction(models.Model):
+    # automatic! id = models.AutoField(primary_key=True)
+    instruction_text = models.TextField()
+    is_exclusive = models.BooleanField()
+    task_reward = models.DecimalField(max_digits=6, decimal_places=2)
+    messages_per_task= models.IntegerField()
+    min_agreement_percentage = models.IntegerField()
+    max_workers_per_message = models.IntegerField()
+    available_tags = models.ManyToManyField(Tag, blank=True)
+    creation_time = models.DateTimeField(default=datetime.datetime.now) 
+    
+    def __unicode__(self):
+        return self.instruction_text
+        
+    class Meta:
+        db_table = u'instructions'
+
 class OrigMessage(models.Model):
     new_id = models.AutoField(primary_key=True)
     assigned_tags = models.ManyToManyField(Tag, blank=True)
-    
+    assigned_instructions = models.ManyToManyField(Instruction, blank=True)
+ 
     id = models.IntegerField()
     transaction_id = models.IntegerField(null=True, blank=True)
     phone = models.CharField(max_length=90, blank=True)
@@ -44,26 +62,15 @@ class OrigMessage(models.Model):
     class Meta:
         db_table = u'orig_messages'
 
-class Instruction(models.Model):
-    # automatic! id = models.AutoField(primary_key=True)
-    instruction_text = models.TextField()
-    is_exclusive = models.BooleanField()
-    task_reward = models.DecimalField(max_digits=6, decimal_places=2)
-    messages_per_task= models.IntegerField()
-    min_agreement_percentage = models.IntegerField()
-    max_workers_per_message = models.IntegerField()
-    avaialbe_tags = models.ManyToManyField(Tag, blank=True)
-    creation_time = models.DateTimeField(default=datetime.datetime.now) 
-    
-    def __unicode__(self):
-        return self.instruction_text
-        
+
+class InstructionForm(ModelForm):
     class Meta:
-        db_table = u'instructions'
+        model = Instruction
+        exclude = ['creation_time']
 
-# class InstructionForm(ModelForm):
-#     class Meta:
-#         model = Instruction
-
+class TagForm(ModelForm):
+    class Meta:
+        model = Tag
+        exclude = ['time']
 
 # gooood article http://www.pointy-stick.com/blog/2009/01/23/advanced-formset-usage-django/
