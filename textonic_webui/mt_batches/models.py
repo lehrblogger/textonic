@@ -25,6 +25,18 @@ class Tag(models.Model):
     class Meta:
         db_table = u'tags'
 
+class Task(models.Model):
+    # automatic! id = models.AutoField(primary_key=True)
+    hit_id = models.CharField(max_length=140, blank=True)
+    time = models.DateTimeField(default=datetime.datetime.now) 
+    
+    def __unicode__(self):
+        return self.tag
+
+    class Meta:
+        db_table = u'tasks'
+
+
 class Instruction(models.Model):
     # automatic! id = models.AutoField(primary_key=True)
     instruction_text = models.TextField()
@@ -34,6 +46,7 @@ class Instruction(models.Model):
     min_agreement_percentage = models.IntegerField()
     max_workers_per_message = models.IntegerField()
     available_tags = models.ManyToManyField(Tag, blank=True)
+    submitted_tasks = models.ManyToManyField(Task, blank=True)
     creation_time = models.DateTimeField(default=datetime.datetime.now) 
     
     def __unicode__(self):
