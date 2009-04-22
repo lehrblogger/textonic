@@ -1,0 +1,82 @@
+# Documentation for textonic.py
+# Thomas Robertaon
+# This work should be considered part of the public domain.
+
+textonic.py relies entirely on the boto library and was tested with version 1.6b.
+
+INTRODUCTION:
+
+There are two classes, each corresponding to one half of the round trip the program supports.  HITGenerator constructs HITs from properly formatted inputs and contains the method SubmitHIT() which is used to that hit to MechanicalTurk.  *IMPORTANT* SubmitHIT() returns the HITId assigned by Amazon when the HIT is registered.  This needs to be stored in order to access the HIT again at a later date.  HITRetriever is used to retrieve a HIT when provided with its HITId and also contains methods for extracting data from that hit.  Calling the method RetrieveHIT() will return a list of Assignment responses which is, in turn, a list of ordered pairs of QuestionIdentifiers and SelectionIdentifiers.
+
+USING THE SANDBOX:
+
+If you want to use the Amazon's sandbox server for testing instead of submitting a HIT for real, there is an option in both SubmitHIT and RetrieveHIT to do so.  If you submit either method with the option sandbox="true" (i.e. SubmitHIT(sandbox='true') )then the method will access the sandbox rather than the regular MechanicalTurk server.
+
+SUBMITTING A HIT:
+
+Submitting a HIT involves two steps: generating the data necessary for a hit, and then actually submitting it (and obtaining the HITId for reference).  When you create a new HITGenerator object you must provide it with the information it needs to build a hit, the pieces of which are layed out below.
+
+	AWS_KEY - REQUIRED
+This is your Amazon AWS API key, it is a string.  It will be stored in the HITGenerator and used to submit the HIT later.
+
+	AWS_SECRET - REQUIRED
+This is your Amazon AWS Secret key, sort of like your password for the API, it is a string.  Like the API key it's needed to register the HIT later.
+
+	question_list - REQUIRED
+This is a list of ordered pairs of the format [Text of question, Question identifier].  The text of the question is what HIT workers will see and the identiifer is used internally only.  An example of this might be [['Peter Piper picked a peck of purple pickled peppers.', 'peter piper'],['There once was a man from Nantucket','nantucket']]
+
+	answer_options - REQUIRED
+This is a list of ordered pairs in the same format as the question_list (text, then identifier).  This is the set of answers that each question will have as options to select between.  An example of this might be [['This is a tongue twister','tt'],['This is a limerick','limerick']]
+
+	title - REQUIRED
+This is the title for your HIT, it is a string.  It is the first thing that most HIT workers will see when browsing through the things they can choose to do.  Short and descriptive is the way to go.
+
+	description - REQUIRED
+This is a more detailed description of your HIT, it is a string.  It is what people will check after the title catches their attention.  It should be a good description of the general tasks to be completed, but brevity is still the goal here.
+
+	keywords - REQUIRED
+Keywords are sort of like tags, they are passed as a list of strings.  You can use them to help people who are searching for HITs.  Brief words related to your HIT are what you're looking for.
+
+	reward - REQUIRED
+This is the reward for a successfully completed task, it is in US$ and is a floating point variable.  Textonic is currently recommending a rate of apprximately 0.015 for each message in a HIT.  So if your HIT has 20 messages to parse, your reward should be 0.30.
+
+	lifetime - DEFAULTS TO 60*60*24 (twenty-four hours)
+This is how long the HIT will stay open for new assignments, it is numerical value equal expressed in seconds.  For the vast majority of tasks the default should be fine.  The most common reason to change this value is if the information you need is time-sensitive and won't be useful if it is not turned around in (say) an hour.
+
+	assignment_count - DEFAULTS TO 5
+This is the number of different HIT workers Amazon will try to obtain for your HIT, it is a numerical value.  The default value is five workers and should be adequate for most tasks.  You can increase the assignment_count if you want more eyes looking at this particular hit, or decrease it if you don't need that many.  Remember that the total cost for your HIT will be your reward rate times your assignment_count, so in our hypothetical 0.30 reward above the default assignment_count will pay $0.30 to five different people making the HIT cost a total of $1.50.
+
+	duration - DEFAULTS TO 60*60 (one hour)
+This is the amount of time a HIT worker has to complete a HIT once they start it, it is a numerical value expressed in seconds.  The default of one hour is plenty of time to complete a textonic style tagging operation (which tend to take fewer than 5 minutes), but there is little reason not to give people extra time if they need it.  The only reason to increase this value is if you have an extremely large HIT which is not recommended.  It is better to break up large tasks into many small tasks and submit each one individually.
+
+	approval_delay = 60*60*12 (twelve hours)
+This is the amount of time before payment for a worker's completion of your HIT is automatically approved, it is a numerical value expressed in seconds.  The default value of twelve hours should be fine for most tasks, but if you plan to do extensive reviews of your HITs then 24 hours may be desired.  Since textonic seeks to off-load the work involved in classification it is assumes that you will rarely look over submitted HITs yourself and that auto-approval will be the standard way that workers get approved for payment.
+
+	annotation = 'Annotation'
+This is an internal annotation of the HIT (it is not shown to HIT workers), it is a string.  You can use annotations if you need another way to keep your HITs organized internally.
+
+	answer_style = 'radiobutton'
+This is the type of answer system the HIT will use, as of this version it MUST be 'radiobutton', which is the default.  (For now you should just ignore this attribute.)  Eventually support for non-exclusive tagging (checkboxes) is planned.
+
+
+Once you have created a HITGenerator using the above values, submitting it is easy.  All you have to do is is call your new HITGenerator's SubmitHIT() method.  (Remember that if you want to use the sandbox you need to include the attribute sandbox='true'.)  SubmitHIT() will then contact Amazon using your access and secret keys and upload the HIT for you.  The function will both return the HIT's HITId (which will be assigned by Amazon) as a string and store it in the HITGenerator object HITId in case you need to access it later.  IMPORTANT NOTE!  You should only execute SubmitHIT() once for any given HIT.  Each time you execute this method a new HIT will be created, and each HIT costs you money.  So don't double submit.
+
+RETRIEVING A HIT
+
+Retrieving a hit is significantly simpler than submitting one, primarily because all of the data types have been defined by the time you get to this step.  All you have to do is create a new HITRetriever object with the (much simpler) attributes listed below.  Then if you use your newly-created HITRetriever's method RetrieveHIT() it will access Amazon AWS and retrieve the data from completed assignments which it will then return.  Unlike submitting a hit, retrieving one does not add any data to MechanicalTurk so you may execute RetrieveHIT() as many times as you want without penalty.
+
+	AWS_KEY - REQUIRED
+This is your Amazon AWS API key, it is a string.  It will be stored in the HITGenerator and used to submit the HIT later.  This is the same key that you use to submit HITs.
+
+	AWS_SECRET - REQUIRED
+This is your Amazon AWS Secret key, sort of like your password for the API, it is a string.  Like the API key it's needed to register the HIT later.  This is the same key that you use to submit HITs.
+
+	hit_id - REQUIRED
+This is the HITId of the HIT you want to get data for, it is a string.  This is returned by the SubmitHIT() method in a HITGenerator and is stored in HITGenerator.HITId.
+
+
+Once you've created a new HITRetriever object as detailed above, all you have to do is execute its RetrieveHIT() method (and, again, remember that if your HIT is on the sandbox you need to include the attribute sandbox='true').  The method will access Amazon AWS and retrieve the hit you specified.  Then it will parse the answers out of the hit and return all of the data in a list of lists containing pairs.
+
+Each answer will be expressed as a pair in the following format [Question identifier, Answer identifier].  Using our earlier example you might get ['peter piper','tt'].  A pair is generated for every question in your HIT and all of a single HIT worker's question-answer pairs are then compiled into one long list.  This is done for all HIT workers assigned to a HIT and then each of their lists of question-answer pairs are placed in a list and in turn returned by the RetrieveHIT() method.
+
+Note that if you only recently submitted a HIT multiple instances of retrieval may not be identical.  RetrieveHIT() will return each completed instance to date, and if (for instance) only two people have completed your HIT the first time you call it, you'll get a list of two workers' lists of question-answer pairs.  If you call RetrieveHIT() again later and four people have completed it then you'll get a list that contains both the first two workers question-answer pair lists, and question-answer pair lists for the new completions as well.  Once a HIT has reached the limit set in its assignment_count each successive call to RetrieveHIT() will produce exactly the same results.

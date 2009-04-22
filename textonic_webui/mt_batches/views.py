@@ -47,10 +47,10 @@ def instruction_info(request, object_id):
 		f = InstructionFormAll(request.POST, instance=i)
 			
 		if f.is_valid():
-			generator = HITGenerator(AWS_KEY = AWSUser.objects.get(pk=1).aws_key, 
-									 AWS_SECRET = AWSUser.objects.get(pk=1).aws_secret,
-									 question_list = [m.message for m in OrigMessage.objects.all()],
-									 answer_options = [(t.tag, t.id) for t in i.available_tags.all()], 
+			generator = HITGenerator(AWS_KEY = '124AK6CEGM0WVXGYT202',#AWSUser.objects.get(pk=1).aws_key, 
+									 AWS_SECRET = 'X5UpQYZKU8s9KtZ6qn7FSABlIgxg14yOyuCjgI+1', #AWSUser.objects.get(pk=1).aws_secret,
+									 question_list = [[m.message, m.id] for m in OrigMessage.objects.all()],
+									 answer_options = [[t.tag, t.id] for t in i.available_tags.all()], 
 									 title = i.instruction_title,
 									 description = i.instruction_text, 
 									 keywords = ['data classification', 'reading'],
@@ -58,8 +58,8 @@ def instruction_info(request, object_id):
         							 annotation = i.id, 
         							 reward = i.task_reward,
         							 assignment_count = i.max_workers_per_message)
-        	res = generator.SubmitHIT(sandbox = 'true')
-        	i.submitted_tasks.add(Task(hit_id=res))
+        	ret_val = generator.SubmitHIT(sandbox = 'true')
+        	i.submitted_tasks.add(Task(hit_id=ret_val))
         	f.save()
         	return HttpResponseRedirect("/mt_batches/instructions")
 	else:
