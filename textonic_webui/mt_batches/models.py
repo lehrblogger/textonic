@@ -13,6 +13,16 @@ from django.db import models
 from django.forms import ModelForm
 import datetime 
 
+class AWSUser(models.Model):
+    # automatic! id = models.AutoField(primary_key=True)
+    aws_key = models.CharField(max_length=140, blank=True)
+    aws_secret = models.CharField(max_length=140, blank=True)
+    
+    def __unicode__(self):
+        return self.aws_key
+
+    class Meta:
+        db_table = u'aws_users'
 
 class Tag(models.Model):
     # automatic! id = models.AutoField(primary_key=True)
@@ -31,7 +41,7 @@ class Task(models.Model):
     time = models.DateTimeField(default=datetime.datetime.now) 
     
     def __unicode__(self):
-        return self.tag
+        return self.hit_id
 
     class Meta:
         db_table = u'tasks'
@@ -39,6 +49,7 @@ class Task(models.Model):
 
 class Instruction(models.Model):
     # automatic! id = models.AutoField(primary_key=True)
+    instruction_title = models.CharField(max_length=140, blank=True)
     instruction_text = models.TextField()
     is_exclusive = models.BooleanField()
     task_reward = models.DecimalField(max_digits=6, decimal_places=2)
@@ -50,8 +61,14 @@ class Instruction(models.Model):
     creation_time = models.DateTimeField(default=datetime.datetime.now) 
     
     def __unicode__(self):
-        return self.instruction_text
+        return self.instruction_title
         
+    def get_answer_style(self):
+    	if self.is_exclusive:
+    		return 'radiobutton'
+    	else:
+    		return 'checkbox'
+
     class Meta:
         db_table = u'instructions'
 
@@ -89,6 +106,7 @@ class InstructionFormAll(ModelForm):
         super(InstructionFormAll, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.id:
+            self.fields['instruction_title'].widget.attrs['readonly'] = True
             self.fields['instruction_text'].widget.attrs['readonly'] = True
             self.fields['is_exclusive'].widget.attrs['readonly'] = True
             self.fields['task_reward'].widget.attrs['readonly'] = True

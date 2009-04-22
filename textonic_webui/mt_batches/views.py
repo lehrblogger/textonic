@@ -1,4 +1,5 @@
-from textonic_webui.mt_batches.models import Instruction, Tag, InstructionForm, InstructionFormAll, TagForm
+from textonic_webui.mt_batches.models import AWSUser, Instruction, Tag, OrigMessage, InstructionForm, InstructionFormAll, TagForm
+from textonic_webui.backend.textonic import HITGenerator
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from django.shortcuts import render_to_response, get_object_or_404
@@ -15,8 +16,6 @@ def create_tag(request):
         if f.is_valid():
             f.save()
             return HttpResponseRedirect("/mt_batches/tags")
-        else:
-            request.user.message_set.create(message='Please check your data.')
     else:
         f = TagForm(instance=t)
         
@@ -36,8 +35,6 @@ def create_instruction(request):
         if f.is_valid():
             f.save()
             return HttpResponseRedirect("/mt_batches/instructions")
-        else:
-            request.user.message_set.create(message='Please check your data.')
     else:
         f = InstructionForm(instance=i)
         
@@ -48,15 +45,25 @@ def instruction_info(request, object_id):
 	i = get_object_or_404(Instruction, pk=object_id)
 	if request.method == 'POST':
 		f = InstructionFormAll(request.POST, instance=i)
-		f.TextInput(attrs={'disabled': 'disabled'})
-
+			
 		if f.is_valid():
-			f.save()
-			#submit here
-		else:
-			request.user.message_set.create(message='Please check your data.')
+			generator = HITGenerator(AWS_KEY = AWSUser.objects.get(pk=1).aws_key, 
+									 AWS_SECRET = AWSUser.objects.get(pk=1).aws_secret,
+									 question_list = [m.message for m in OrigMessage.objects.all()],
+									 answer_options = [(t.tag, t.id) for t in i.available_tags.all()], 
+									 title = i.instruction_title,
+									 description = i.instruction_text, 
+									 keywords = ['data classification', 'reading'],
+									 answer_style = i.get_answer_style(),
+        							 annotation = i.id, 
+        							 reward = i.task_reward,
+        							 assignment_count = i.max_workers_per_message)
+        	res = generator.SubmitHIT(sandbox = 'true')
+        	i.submitted_tasks.add(Task(hit_id=res))
+        	f.save()
+        	return HttpResponseRedirect("/mt_batches/instructions")
 	else:
 		f = InstructionFormAll(instance=i)
-    
+		
 	return render_to_response("mt_batches/instruction_info.html", {"form": f})
 	
