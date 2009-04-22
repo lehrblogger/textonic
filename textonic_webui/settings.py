@@ -78,7 +78,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'textonic_webui.boto',
     'textonic_webui.backend',
     'textonic_webui.mt_batches',
 )
