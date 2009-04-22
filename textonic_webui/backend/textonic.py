@@ -24,6 +24,8 @@ class HITGenerator(object):
         self.AWS_SECRET = AWS_SECRET # This is the AWS Secret key for the user
         self.host = 'mechanicalturk.amazonaws.com'
 
+        self.HITId = 'NOT SUBMITTED YET'
+        
             # Quesion and answer formats
         self.question_list = question_list # A list of strings containing the text of the questions this HIT will be built from
         self.answer_style = answer_style # A string determining the type of answer, for Textonic HITs this must either be 'radiobutton'
@@ -79,7 +81,8 @@ class HITGenerator(object):
                                  annotation = self.annotation)
 
             # Returns the HITId as a unicode string
-        return hit_response.HITId
+        self.HITId = hit_response.HITId
+        return self.HITId
 
 class HITRetriever(object):
     """
