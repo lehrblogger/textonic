@@ -85,6 +85,20 @@ class InstructionFormAll(ModelForm):
     class Meta:
         model = Instruction
         
+    def __init__(self, *args, **kwargs):
+        super(InstructionFormAll, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.id:
+            self.fields['instruction_text'].widget.attrs['readonly'] = True
+            self.fields['is_exclusive'].widget.attrs['readonly'] = True
+            self.fields['task_reward'].widget.attrs['readonly'] = True
+            self.fields['messages_per_task'].widget.attrs['readonly'] = True
+            self.fields['min_agreement_percentage'].widget.attrs['readonly'] = True 
+            self.fields['max_workers_per_message'].widget.attrs['readonly'] = True
+            self.fields['available_tags'].widget.attrs['readonly'] = True
+            self.fields['submitted_tasks'].widget.attrs['readonly'] = True
+            self.fields['creation_time'].widget.attrs['readonly'] = True
+
 class TagForm(ModelForm):
     class Meta:
         model = Tag

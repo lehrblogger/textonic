@@ -48,6 +48,8 @@ def instruction_info(request, object_id):
 	i = get_object_or_404(Instruction, pk=object_id)
 	if request.method == 'POST':
 		f = InstructionFormAll(request.POST, instance=i)
+		f.TextInput(attrs={'disabled': 'disabled'})
+
 		if f.is_valid():
 			f.save()
 			#submit here
