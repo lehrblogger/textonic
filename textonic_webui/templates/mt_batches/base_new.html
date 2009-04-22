@@ -1,0 +1,14 @@
+<h1>{% block name %}{% endblock %}</h1>
+
+<form method="POST" action="">
+	<table>
+   	{% for field in form %}
+   		<tr>
+    	<td>{{ field.label_tag }}</td>
+        <td>{{ field }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </br>
+    <input type="submit" value="Submit" />
+</form>

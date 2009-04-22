@@ -79,8 +79,12 @@ class OrigMessage(models.Model):
 class InstructionForm(ModelForm):
     class Meta:
         model = Instruction
-        exclude = ['creation_time']
+        exclude = ['creation_time', 'submitted_tasks']
 
+class InstructionFormAll(ModelForm):
+    class Meta:
+        model = Instruction
+        
 class TagForm(ModelForm):
     class Meta:
         model = Tag

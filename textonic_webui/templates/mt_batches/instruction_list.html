@@ -2,6 +2,6 @@
 
 {% block uppername %}<a href="/mt_batches/tags">Tags</a> | Instructions{% endblock %}
 
-{% block listitem %}{{ object.instruction_text }}{% endblock %}
+{% block listitem %}<a href="/mt_batches/instructions/{{ object.id }}">{{ object.instruction_text }}</a>{% endblock %}
 
 {% block lowername %}instructions{% endblock %}
