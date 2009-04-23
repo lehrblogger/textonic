@@ -58,7 +58,9 @@ def instruction_info(request, object_id):
         							 annotation = str(i.id), 
         							 reward = i.task_reward,
         							 assignment_count = i.max_workers_per_message)
-#         	debug_list = [generator.question_list, 
+#         	debug_list = [generator.AWS_KEY, 
+#         				  generator.AWS_SECRET,
+#         				  generator.question_list, 
 #         				  generator.answer_options, 
 #         				  generator.title, 
 #         				  generator.description, 
