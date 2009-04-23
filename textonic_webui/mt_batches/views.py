@@ -1,4 +1,4 @@
-from textonic_webui.mt_batches.models import AWSUser, Instruction, Tag, OrigMessage, InstructionForm, InstructionFormAll, TagForm
+from textonic_webui.mt_batches.models import AWSUser, Instruction, Tag, Task, OrigMessage, InstructionForm, InstructionFormAll, TagForm
 from textonic_webui.backend.textonic import HITGenerator
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
@@ -47,18 +47,29 @@ def instruction_info(request, object_id):
 		f = InstructionFormAll(request.POST, instance=i)
 			
 		if f.is_valid():
-			generator = HITGenerator(AWS_KEY = '124AK6CEGM0WVXGYT202',#AWSUser.objects.get(pk=1).aws_key, 
-									 AWS_SECRET = 'X5UpQYZKU8s9KtZ6qn7FSABlIgxg14yOyuCjgI+1', #AWSUser.objects.get(pk=1).aws_secret,
-									 question_list = [[m.message, m.id] for m in OrigMessage.objects.all()],
-									 answer_options = [[t.tag, t.id] for t in i.available_tags.all()], 
+			generator = HITGenerator(AWS_KEY = AWSUser.objects.get(pk=2).aws_key, 
+									 AWS_SECRET = AWSUser.objects.get(pk=2).aws_secret,
+									 question_list = [[str(m.message),str(m.id)] for m in OrigMessage.objects.all()],
+									 answer_options = [[str(t.tag),str(t.id)] for t in i.available_tags.all()], 
 									 title = i.instruction_title,
 									 description = i.instruction_text, 
-									 keywords = ['data classification', 'reading'],
-									 answer_style = i.get_answer_style(),
-        							 annotation = i.id, 
+									 keywords = ['data_classification', 'reading'],
+									 answer_style = str(i.get_answer_style()),
+        							 annotation = str(i.id), 
         							 reward = i.task_reward,
         							 assignment_count = i.max_workers_per_message)
-        	ret_val = generator.SubmitHIT(sandbox = 'true')
+#         	debug_list = [generator.question_list, 
+#         				  generator.answer_options, 
+#         				  generator.title, 
+#         				  generator.description, 
+#         				  generator.keywords, 
+#         				  generator.answer_style, 
+#         				  generator.annotation, 
+#         				  generator.reward, 
+#         				  generator.assignment_count]
+#       		return render_to_response("mt_batches/text.html", {"text_list": debug_list, 'extra': dir(debug_list)})
+
+  	     	ret_val = generator.SubmitHIT(sandbox = 'true')
         	i.submitted_tasks.add(Task(hit_id=ret_val))
         	f.save()
         	return HttpResponseRedirect("/mt_batches/instructions")
