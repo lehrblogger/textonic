@@ -47,6 +47,7 @@ class HITGenerator(object):
             # 1 hour
         self.approval_delay = approval_delay # The amount of time in seconds before the system automatically approves payment on a
             # completed HIT
+        self.hit_response = None;
 
     def SubmitHIT(self, sandbox = 'false'):
         """"
@@ -69,7 +70,7 @@ class HITGenerator(object):
 
         question_form = QuestionForm(questions)
 
-        hit_response = conn.create_hit(question = question_form,
+        self.hit_response = conn.create_hit(question = question_form,
                                  lifetime = self.lifetime,
                                  max_assignments = self.assignment_count,
                                  title = self.title,
@@ -81,7 +82,7 @@ class HITGenerator(object):
                                  annotation = self.annotation)
 
             # Returns the HITId as a unicode string
-        self.HITId = hit_response.HITId
+        self.HITId = self.hit_response.HITId
         return self.HITId
 
 class HITRetriever(object):

@@ -4,8 +4,17 @@
 	<table>
 	{% for field in form %}
    		<tr>
-    	<td>{{ field.label_tag }}</td>
-        <td>{{ field }}</td>
+		{% ifnotequal field.label "Submitted tasks" %}
+    		<td>{{ field.label_tag }}</td>
+       		<td>{{ field }}</td>
+		{% else %}
+    		<td>{{ field.label_tag }}</td>
+    		<td><ul>
+       		{% for choice in form.base_fields.submitted_tasks.choices %}
+    			<li><a href="https://requester.mturk.com/mturk/manageHIT?viewableEditPane=manageHIT_downloadResults&HITId={{ choice.1 }}">{{ choice.1 }}</a></li> 
+			{% endfor %}
+			</ul></td>
+		{% endifnotequal %}
         </tr>
 	{% endfor %} 
 	</table>

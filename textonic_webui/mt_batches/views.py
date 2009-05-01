@@ -70,9 +70,12 @@ def instruction_info(request, object_id):
 #         				  generator.reward, 
 #         				  generator.assignment_count]
 #       		return render_to_response("mt_batches/text.html", {"text_list": debug_list, 'extra': dir(debug_list)})
-
-  	     	ret_val = generator.SubmitHIT(sandbox = 'true')
-        	i.submitted_tasks.add(Task(hit_id=ret_val))
+			
+        	ret_val = generator.SubmitHIT(sandbox = 'true')
+        	t = Task(hit_id=ret_val)
+        	t.save()
+        	#return render_to_response("mt_batches/text.html", {"text_list": '', 'extra': ret_val})
+        	i.submitted_tasks.add(t)
         	f.save()
         	return HttpResponseRedirect("/mt_batches/instructions")
 	else:
